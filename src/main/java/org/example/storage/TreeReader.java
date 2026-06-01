@@ -60,7 +60,7 @@ public class TreeReader {
         }
     }
 
-    private static byte[] readRawObject(String hash) throws Exception {
+    public static byte[] readRawObject(String hash) throws Exception {
         String dir = hash.substring(0, 2);
         String file = hash.substring(2);
 

@@ -47,6 +47,10 @@ public class Main {
                 CheckoutCommand.execute(args);
                 break;
 
+            case "diff":
+                DiffCommand.execute(args);
+                break;
+
             default:
                 System.out.println("Unknown command: " + args[0]);
         }
