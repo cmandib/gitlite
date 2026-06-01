@@ -1,9 +1,6 @@
 package org.example.commands;
 
-import org.example.storage.ObjectStore;
-import org.example.storage.CommitParser;
-import org.example.storage.ObjectReader;
-import org.example.storage.TreeFlattener;
+import org.example.storage.*;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -20,38 +17,61 @@ public class StatusCommand {
         System.out.println();
 
         Map<String, String> committed = getCommittedFiles();
+        Map<String, String> index = Index.read();
 
-        // Walk working directory
         Map<String, String> working = new TreeMap<>();
         walkDir(Path.of("."), "", working);
+
+        Map<String, String> baseline = new TreeMap<>(committed);
+        baseline.putAll(index);
 
         List<String> modified = new ArrayList<>();
         List<String> deleted = new ArrayList<>();
         List<String> untracked = new ArrayList<>();
 
-        // Check committed files against working directory
-        for (Map.Entry<String, String> entry : committed.entrySet()) {
+        for (Map.Entry<String, String> entry : baseline.entrySet()) {
             String file = entry.getKey();
-            String committedHash = entry.getValue();
+            String baseHash = entry.getValue();
 
             if (!working.containsKey(file)) {
                 deleted.add(file);
-            } else if (!working.get(file).equals(committedHash)) {
+            } else if (!working.get(file).equals(baseHash)) {
                 modified.add(file);
             }
         }
 
-        // Check working files against committed
         for (String file : working.keySet()) {
-            if (!committed.containsKey(file)) {
+            if (!baseline.containsKey(file)) {
                 untracked.add(file);
             }
         }
 
-        // Print results
-        if (modified.isEmpty() && deleted.isEmpty()) {
+        List<String> staged = new ArrayList<>();
+        for (Map.Entry<String, String> entry : index.entrySet()) {
+            String file = entry.getKey();
+            String indexHash = entry.getValue();
+            String committedHash = committed.get(file);
+
+            if (!indexHash.equals(committedHash != null ? committedHash : "")) {
+                staged.add(file);
+            }
+        }
+
+        // Print
+        if (modified.isEmpty() && deleted.isEmpty() && staged.isEmpty() && untracked.isEmpty()) {
             System.out.println("Nothing to commit, working tree clean");
-        } else {
+            return;
+        }
+
+        if (!staged.isEmpty()) {
+            System.out.println("Changes to be committed:");
+            for (String f : staged) {
+                System.out.println("    staged:     " + f);
+            }
+            System.out.println();
+        }
+
+        if (!modified.isEmpty() || !deleted.isEmpty()) {
             System.out.println("Changes not staged for commit:");
             for (String f : modified) {
                 System.out.println("    modified:   " + f);

@@ -55,6 +55,10 @@ public class Main {
                 StatusCommand.execute();
                 break;
 
+            case "add":
+                AddCommand.execute(args);
+                break;
+
             default:
                 System.out.println("Unknown command: " + args[0]);
         }

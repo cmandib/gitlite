@@ -1,10 +1,12 @@
 package org.example.commands;
 
 import org.example.storage.CommitWriter;
+import org.example.storage.Index;
 import org.example.storage.TreeWriter;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Map;
 
 public class CommitCommand {
 
@@ -22,14 +24,22 @@ public class CommitCommand {
             throw new IllegalArgumentException("Usage: commit -m <message>");
         }
 
-        // Snapshot working directory as a tree
-        String treeHash = TreeWriter.write(Path.of("."));
+        Map<String, String> index = Index.read();
 
-        // Build and store the commit object
+        if (index.isEmpty()) {
+            System.out.println("Nothing to commit — stage files with add first");
+            return;
+        }
+
+        // Build tree from index instead of scanning working directory
+        String treeHash = TreeWriter.writeFromIndex(index);
+
         String commitHash = CommitWriter.write(treeHash, message);
 
-        // Advance the branch ref to point to new commit
         updateHead(commitHash);
+
+        // Clear index after commit
+        Index.write(new java.util.LinkedHashMap<>());
 
         System.out.println("[commit " + commitHash + "] " + message);
     }
@@ -44,7 +54,6 @@ public class CommitCommand {
             Files.createDirectories(ref.getParent());
             Files.writeString(ref, commitHash + "\n");
         } else {
-            // detached HEAD — write hash directly
             Files.writeString(head, commitHash + "\n");
         }
     }
