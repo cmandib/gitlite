@@ -59,6 +59,10 @@ public class Main {
                 AddCommand.execute(args);
                 break;
 
+            case "merge":
+                MergeCommand.execute(args);
+                break;
+
             default:
                 System.out.println("Unknown command: " + args[0]);
         }

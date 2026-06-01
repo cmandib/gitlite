@@ -39,6 +39,33 @@ public class CommitWriter {
         return ObjectStore.storeRaw(full.toByteArray());
     }
 
+    public static String writeMergeCommit(
+            String treeHash,
+            String parent1,
+            String parent2,
+            String message) throws Exception {
+
+        String author = buildIdentity();
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("tree ").append(treeHash).append("\n");
+        sb.append("parent ").append(parent1).append("\n");
+        sb.append("parent ").append(parent2).append("\n");
+        sb.append("author ").append(author).append("\n");
+        sb.append("committer ").append(author).append("\n");
+        sb.append("\n");
+        sb.append(message).append("\n");
+
+        byte[] body = sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+
+        java.io.ByteArrayOutputStream full = new java.io.ByteArrayOutputStream();
+        full.write(("commit " + body.length).getBytes(java.nio.charset.StandardCharsets.UTF_8));
+        full.write(0);
+        full.write(body);
+
+        return ObjectStore.storeRaw(full.toByteArray());
+    }
+
     private static String resolveParent() throws Exception {
         Path head = Path.of(".git", "HEAD");
         String headContent = Files.readString(head).trim();

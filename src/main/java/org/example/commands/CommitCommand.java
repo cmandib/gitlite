@@ -20,8 +20,17 @@ public class CommitCommand {
             }
         }
 
+        // Check for merge in progress
+        Path mergeHead = Path.of(".git", "MERGE_HEAD");
+        boolean isMergeCommit = Files.exists(mergeHead);
+
         if (message == null) {
-            throw new IllegalArgumentException("Usage: commit -m <message>");
+            if (isMergeCommit) {
+                // Use the saved merge message
+                message = Files.readString(Path.of(".git", "MERGE_MSG")).trim();
+            } else {
+                throw new IllegalArgumentException("Usage: commit -m <message>");
+            }
         }
 
         Map<String, String> index = Index.read();
@@ -31,17 +40,34 @@ public class CommitCommand {
             return;
         }
 
-        // Build tree from index instead of scanning working directory
         String treeHash = TreeWriter.writeFromIndex(index);
+        String commitHash;
 
-        String commitHash = CommitWriter.write(treeHash, message);
+        if (isMergeCommit) {
+            String parent2 = Files.readString(mergeHead).trim();
+            commitHash = CommitWriter.writeMergeCommit(treeHash,
+                    resolveCurrentHash(), parent2, message);
+            // Clean up merge state
+            Files.delete(mergeHead);
+            Files.deleteIfExists(Path.of(".git", "MERGE_MSG"));
+        } else {
+            commitHash = CommitWriter.write(treeHash, message);
+        }
 
         updateHead(commitHash);
-
-        // Clear index after commit
         Index.write(new java.util.LinkedHashMap<>());
 
         System.out.println("[commit " + commitHash + "] " + message);
+    }
+
+    private static String resolveCurrentHash() throws Exception {
+        Path head = Path.of(".git", "HEAD");
+        String headContent = Files.readString(head).trim();
+        if (headContent.startsWith("ref: ")) {
+            String refPath = headContent.substring(5).trim();
+            return Files.readString(Path.of(".git").resolve(refPath)).trim();
+        }
+        return headContent;
     }
 
     private static void updateHead(String commitHash) throws Exception {
