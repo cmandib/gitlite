@@ -51,6 +51,10 @@ public class Main {
                 DiffCommand.execute(args);
                 break;
 
+            case "status":
+                StatusCommand.execute();
+                break;
+
             default:
                 System.out.println("Unknown command: " + args[0]);
         }
