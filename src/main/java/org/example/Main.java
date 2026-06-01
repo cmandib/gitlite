@@ -1,9 +1,6 @@
 package org.example;
 
-import org.example.commands.CatFileCommand;
-import org.example.commands.HashObjectCommand;
-import org.example.commands.InitCommand;
-import org.example.commands.WriteTreeCommand;
+import org.example.commands.*;
 
 import java.nio.file.Paths;
 
@@ -32,6 +29,10 @@ public class Main {
 
             case "write-tree":
                 WriteTreeCommand.execute();
+                break;
+
+            case "commit":
+                CommitCommand.execute(args);
                 break;
 
             default:
