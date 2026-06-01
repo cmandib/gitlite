@@ -39,6 +39,10 @@ public class Main {
                 LogCommand.execute();
                 break;
 
+            case "branch":
+                BranchCommand.execute(args);
+                break;
+
             default:
                 System.out.println("Unknown command: " + args[0]);
         }
