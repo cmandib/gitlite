@@ -1,5 +1,6 @@
 package org.example;
 
+import org.example.commands.CatFileCommand;
 import org.example.commands.HashObjectCommand;
 import org.example.commands.InitCommand;
 
@@ -22,6 +23,10 @@ public class Main {
 
             case "hash-object":
                 HashObjectCommand.execute(args);
+                break;
+
+            case "cat-file":
+                CatFileCommand.execute(args);
                 break;
 
             default:

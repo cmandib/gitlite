@@ -12,6 +12,7 @@ public class HashObjectCommand {
         boolean write = false;
         String filePath = null;
 
+        // args[0] is "hash-object", so start at 1
         for (int i = 1; i < args.length; i++) {
             if (args[i].equals("-w")) {
                 write = true;
