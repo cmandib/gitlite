@@ -35,6 +35,10 @@ public class Main {
                 CommitCommand.execute(args);
                 break;
 
+            case "log":
+                LogCommand.execute();
+                break;
+
             default:
                 System.out.println("Unknown command: " + args[0]);
         }
