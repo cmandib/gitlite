@@ -3,6 +3,7 @@ package org.example;
 import org.example.commands.CatFileCommand;
 import org.example.commands.HashObjectCommand;
 import org.example.commands.InitCommand;
+import org.example.commands.WriteTreeCommand;
 
 import java.nio.file.Paths;
 
@@ -27,6 +28,10 @@ public class Main {
 
             case "cat-file":
                 CatFileCommand.execute(args);
+                break;
+
+            case "write-tree":
+                WriteTreeCommand.execute();
                 break;
 
             default:

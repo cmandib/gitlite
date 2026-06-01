@@ -74,4 +74,26 @@ public class ObjectStore {
         }
         return sb.toString();
     }
+
+    public static String storeRaw(byte[] raw) throws Exception {
+        MessageDigest md = MessageDigest.getInstance("SHA-1");
+        byte[] digest = md.digest(raw);
+        String hash = toHex(digest);
+
+        byte[] compressed = compress(raw);
+
+        String dir = hash.substring(0, 2);
+        String file = hash.substring(2);
+
+        Path objectDir = Path.of(".git", "objects", dir);
+        Files.createDirectories(objectDir);
+
+        Path objectPath = objectDir.resolve(file);
+
+        try (FileOutputStream out = new FileOutputStream(objectPath.toFile())) {
+            out.write(compressed);
+        }
+
+        return hash;
+    }
 }
