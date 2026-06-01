@@ -43,6 +43,10 @@ public class Main {
                 BranchCommand.execute(args);
                 break;
 
+            case "checkout":
+                CheckoutCommand.execute(args);
+                break;
+
             default:
                 System.out.println("Unknown command: " + args[0]);
         }
